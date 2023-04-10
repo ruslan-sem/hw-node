@@ -37,9 +37,43 @@ const removeContact = async (contactId) => {
   }
 };
 
-const addContact = async (body) => {};
+const addContact = async (body) => {
+  const { name, email, phone } = body;
+  const newContact = { id: nanoid(), name, email, phone };
+  try {
+    const data = await fs.readFile(contactsPath, "utf8");
+    const contacts = JSON.parse(data);
+    contacts.push(newContact);
+    try {
+      await fs.writeFile(contactsPath, JSON.stringify(contacts), "utf8");
+    } catch (err) {
+      throw new Error(err);
+    }
+    return newContact;
+  } catch (err) {
+    throw new Error(err);
+  }
+};
 
-const updateContact = async (contactId, body) => {};
+const updateContact = async (contactId, body) => {
+  try {
+    const data = await fs.readFile(contactsPath, "utf8");
+    const contacts = JSON.parse(data);
+    const idx = contacts.findIndex((item) => item.id === contactId);
+    if (idx === -1) {
+      return;
+    }
+    contacts[idx] = { ...contacts[idx], ...body };
+    try {
+      await fs.writeFile(contactsPath, JSON.stringify(contacts), "utf8");
+    } catch (err) {
+      throw new Error(err);
+    }
+    return contacts[idx];
+  } catch (err) {
+    throw new Error(err);
+  }
+};
 
 module.exports = {
   listContacts,
