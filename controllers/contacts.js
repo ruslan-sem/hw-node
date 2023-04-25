@@ -1,15 +1,15 @@
-const contacts = require("../models/contacts");
+const { Contact } = require("../schemas/contactsSchemas");
 const { HttpError, ctrlWrapper } = require("../helpers");
 
 const getContacts = async (req, res) => {
-  const result = await contacts.listContacts();
+  const result = await Contact.find();
 
   return res.status(200).json(result);
 };
 
 const getContactById = async (req, res) => {
   const { contactId } = req.params;
-  const result = await contacts.getContactById(contactId);
+  const result = await Contact.findById(contactId);
 
   if (!result) {
     throw HttpError(404, "Not found");
@@ -19,7 +19,7 @@ const getContactById = async (req, res) => {
 };
 
 const createContact = async (req, res) => {
-  const result = await contacts.addContact(req.body);
+  const result = await Contact.create(req.body);
 
   return res.status(201).json(result);
 };
@@ -29,7 +29,9 @@ const updateContactById = async (req, res) => {
 
   const { contactId } = req.params;
 
-  const result = await contacts.updateContact(contactId, req.body);
+  const result = await Contact.findByIdAndUpdate(contactId, req.body, {
+    new: true,
+  });
 
   if (!Object.keys(req.body).length) {
     throw HttpError(400, "Missing fields");
@@ -44,7 +46,7 @@ const updateContactById = async (req, res) => {
 
 const deleteContactById = async (req, res) => {
   const { contactId } = req.params;
-  const result = await contacts.removeContact(contactId);
+  const result = await Contact.findByIdAndRemove(contactId);
 
   if (!result) {
     throw HttpError(404, "Not found");
@@ -53,10 +55,28 @@ const deleteContactById = async (req, res) => {
   return res.status(200).json({ message: "contact deleted" });
 };
 
+const updateStatusContact = async (req, res) => {
+  const { contactId } = req.params;
+  const result = await Contact.findByIdAndUpdate(contactId, req.body, {
+    new: true,
+  });
+
+  if (!Object.keys(req.body).length) {
+    throw HttpError(400, "Missing field favorite");
+  }
+
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
+
+  return res.json(result);
+};
+
 module.exports = {
   getContacts: ctrlWrapper(getContacts),
   getContactById: ctrlWrapper(getContactById),
   createContact: ctrlWrapper(createContact),
   updateContactById: ctrlWrapper(updateContactById),
   deleteContactById: ctrlWrapper(deleteContactById),
+  updateStatusContact: ctrlWrapper(updateStatusContact),
 };
