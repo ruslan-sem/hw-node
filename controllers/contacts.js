@@ -25,8 +25,6 @@ const createContact = async (req, res) => {
 };
 
 const updateContactById = async (req, res) => {
-  console.log(req.body);
-
   const { contactId } = req.params;
 
   const result = await Contact.findByIdAndUpdate(contactId, req.body, {
