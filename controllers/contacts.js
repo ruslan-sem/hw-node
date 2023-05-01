@@ -2,7 +2,8 @@ const { Contact } = require("../schemas/contactsSchemas");
 const { HttpError, ctrlWrapper } = require("../helpers");
 
 const getContacts = async (req, res) => {
-  const result = await Contact.find();
+  const { _id: owner } = req.user;
+  const result = await Contact.find({ owner });
 
   return res.status(200).json(result);
 };
@@ -19,7 +20,8 @@ const getContactById = async (req, res) => {
 };
 
 const createContact = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
 
   return res.status(201).json(result);
 };
